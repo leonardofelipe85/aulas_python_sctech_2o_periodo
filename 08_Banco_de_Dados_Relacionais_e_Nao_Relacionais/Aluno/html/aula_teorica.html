@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 08 — Banco de Dados Relacionais e Não Relacionais</title>
+<style>
+  :root{
+    --red:#CC0000;
+    --red-dark:#990000;
+    --ink:#1a1a2e;
+    --bg:#f7f7fa;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI', Roboto, Arial, sans-serif;
+    background:var(--bg);
+    color:#222;
+    line-height:1.6;
+  }
+  .hero{
+    background:linear-gradient(135deg,#0d1b2a,#1b263b,var(--red));
+    color:#fff;
+    padding:60px 24px;
+    text-align:center;
+  }
+  .hero h1{
+    margin:0 0 10px;
+    font-size:2.2rem;
+  }
+  .hero h1 span{ color:#FFD60A; }
+  .hero p{
+    max-width:760px;
+    margin:14px auto 0;
+    font-size:1.05rem;
+    opacity:.92;
+  }
+  .badge{
+    display:inline-block;
+    background:rgba(255,255,255,.15);
+    border:1px solid rgba(255,255,255,.4);
+    border-radius:20px;
+    padding:6px 16px;
+    margin-top:18px;
+    font-size:.9rem;
+  }
+  main{
+    max-width:980px;
+    margin:0 auto;
+    padding:40px 20px 80px;
+  }
+  section{ margin-bottom:48px; }
+  h2{
+    color:var(--red-dark);
+    border-bottom:3px solid var(--red);
+    padding-bottom:8px;
+    font-size:1.5rem;
+  }
+  h3{ color:var(--ink); }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:18px 0;
+    box-shadow:0 1px 4px rgba(0,0,0,.08);
+  }
+  th, td{
+    border:1px solid #ddd;
+    padding:10px 12px;
+    text-align:left;
+    font-size:.95rem;
+  }
+  th{
+    background:var(--red);
+    color:#fff;
+  }
+  tr:nth-child(even){ background:#fafafa; }
+  .box{
+    background:#fff3f3;
+    border-left:5px solid var(--red);
+    padding:16px 20px;
+    border-radius:6px;
+    margin:18px 0;
+  }
+  .box.tip{
+    background:#F0F7FF;
+    border-left-color:#1565C0;
+  }
+  .qs{
+    background:var(--ink);
+    color:#eee;
+    border-radius:10px;
+    padding:20px 22px;
+    margin:16px 0;
+  }
+  .qs code{
+    background:rgba(255,255,255,.15);
+    color:#E0E0E0;
+    padding:2px 6px;
+    border-radius:4px;
+    font-family:Consolas, monospace;
+  }
+  .qs label{
+    display:block;
+    background:rgba(255,255,255,.06);
+    padding:8px 12px;
+    margin:6px 0;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .qs label:hover{ background:rgba(255,255,255,.12); }
+  .qs button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    padding:8px 18px;
+    border-radius:6px;
+    cursor:pointer;
+    margin-top:10px;
+    font-weight:bold;
+  }
+  .qs button:hover{ background:var(--red-dark); }
+  .feedback{
+    margin-top:10px;
+    padding:10px 14px;
+    border-radius:6px;
+    display:none;
+    font-weight:bold;
+  }
+  .feedback.correct{ background:#1b5e20; display:block; }
+  .feedback.wrong{ background:#7a1f1f; display:block; }
+  .ex{
+    background:#F0F7FF;
+    border:1px solid #BBDEFB;
+    border-radius:8px;
+    padding:16px 20px;
+    margin:14px 0;
+  }
+  pre.codeblock{
+    background:var(--ink);
+    color:#E0E0E0;
+    padding:16px 20px;
+    border-radius:8px;
+    overflow-x:auto;
+    font-family:Consolas, monospace;
+    font-size:.9rem;
+    margin:14px 0;
+  }
+  pre.codeblock .c{ color:#8a8aa0; }
+  footer{
+    background:var(--ink);
+    color:#ccc;
+    text-align:center;
+    padding:26px 16px;
+    font-size:.9rem;
+  }
+  footer strong{ color:#fff; }
+  @media (max-width:768px){
+    .hero h1{ font-size:1.6rem; }
+  }
+
+  /* Estrutura de aula: abertura / checagem / fechamento */
+  .abertura{background:#E8F5E9;border-left:5px solid #1B5E20;border-radius:8px;padding:20px 24px;margin:0 0 32px;}
+  .abertura h3{color:#1B5E20;margin:0 0 10px;font-size:1.05rem;}
+  .abertura ul,.fechamento ul{margin:8px 0 0;padding-left:22px;line-height:1.8;}
+  .checagem{background:#FFF3E0;border-left:5px solid #E65100;border-radius:6px;padding:14px 18px;margin:0 0 28px;font-size:.95rem;}
+  .checagem strong{color:#BF360C;display:block;margin-bottom:6px;}
+  .fechamento{background:#E3F2FD;border-left:5px solid #0D47A1;border-radius:8px;padding:20px 24px;margin:0 0 32px;}
+  .fechamento h3{color:#0D47A1;margin:0 0 10px;font-size:1.05rem;}
+  .topo-autor {
+    background: #0d1b2a;
+    color: rgba(255,255,255,0.72);
+    font-size: 0.82em;
+    font-weight: 500;
+    padding: 7px 28px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    letter-spacing: 0.01em;
+  }
+  .checklist{margin:8px 0 0;padding-left:22px;line-height:1.9;}
+</style>
+</head>
+<body>
+
+<div class="topo-autor">Professor: Cláudio Ferreira Neves - Especialista em Dados</div>
+<div class="hero">
+  <h1>Semana 08 · <span>Banco de Dados Relacionais e Não Relacionais</span></h1>
+  <p>Unidade Curricular: <strong>Manipulação de Dados com Python e SQL</strong> (150h) — Bloco 5, Semana 08 (abre o bloco final do módulo). Você instala o PostgreSQL e o pgAdmin, entende os fundamentos de BI e modelagem de dados, e escreve suas primeiras consultas SQL — SELECT, filtros e agregações.</p>
+  <span class="badge">3 encontros · 9h · PostgreSQL, pgAdmin, BI, SELECT, WHERE, GROUP BY</span>
+</div>
+
+<main>
+
+  <section>
+    <h2>Competência da Unidade Curricular</h2>
+    <div class="box tip">
+      "Desenvolver competências em lógica de programação com Python, modelagem de dados com SQL e NoSQL e utilização de bibliotecas específicas para manipulação, transformação e visualização de dados, apoiando processos de análise de dados."
+    </div>
+    <p>Você já sabe transformar dado limpo em gráfico e montar um pipeline ETL simples (Semana 07). Esta semana muda de ambiente: o Restaurante Sabor Caseiro, que até aqui te mandou um arquivo por vez, passa a guardar a informação de verdade num banco de dados — e você aprende a consultar esse banco com SQL de verdade.</p>
+    <div class="box">
+      <strong>🧠 Pergunta para você pensar:</strong> por que um restaurante que já usa CSV direitinho precisaria trocar por um banco de dados de verdade? A resposta está no que você vai entender logo na Seção 1.
+    </div>
+  </section>
+
+  <div class="abertura">
+    <h3>🟢 Abertura — o que você vai aprender nesta semana</h3>
+    <ul>
+      <li>Os fundamentos de Business Intelligence e os dois grandes tipos de modelagem de dados (relacional x dimensional), e OLTP x OLAP</li>
+      <li>Instalar e configurar o PostgreSQL e o pgAdmin, e criar sua primeira tabela de verdade</li>
+      <li>Escrever consultas básicas em SQL: SELECT, FROM, apelidos de coluna (AS), DISTINCT e LIMIT</li>
+      <li>Filtrar resultados com WHERE, operadores de comparação, AND/OR/NOT, LIKE, IN, BETWEEN e IS NULL</li>
+      <li>Resumir dados com funções de agregação (COUNT, SUM, AVG, MAX, MIN) e GROUP BY</li>
+    </ul>
+  </div>
+
+  <section>
+    <h2>1. Fundamentos de Business Intelligence e Modelagem de Dados</h2>
+    <p>Um <strong>banco de dados</strong> é um programa que fica sempre ligado, rodando em segundo plano, guardando o dado de forma organizada e permitindo que várias pessoas leiam e alterem essa informação ao mesmo tempo — diferente de um arquivo CSV, que você abre, lê e fecha.</p>
+    <p><strong>Business Intelligence (BI)</strong> é o processo de transformar dado bruto em informação que ajuda alguém a decidir algo, seguindo etapas parecidas com o que você já faz desde a Semana 06:</p>
+    <table>
+      <tr><th>Etapa do BI</th><th>O que acontece</th><th>O que você já fez, equivalente</th></tr>
+      <tr><td>Fonte de Dados</td><td>De onde o dado vem</td><td><code>pd.read_csv()</code>, <code>pd.read_excel()</code></td></tr>
+      <tr><td>ETL</td><td>Extrair, Transformar, Carregar</td><td>Limpeza de dados (S06), pipeline ETL (S07)</td></tr>
+      <tr><td>Modelagem/Análise</td><td>Organizar o dado pra ser consultado</td><td>Assunto desta seção</td></tr>
+      <tr><td>Visualização</td><td>Relatórios e dashboards</td><td>Gráficos com Matplotlib (S07)</td></tr>
+      <tr><td>Compartilhamento</td><td>Entregar o conteúdo pra quem decide</td><td>O <code>.png</code> exportado</td></tr>
+    </table>
+
+    <h3>Dois jeitos de modelar dado: relacional x dimensional</h3>
+    <table>
+      <tr><th></th><th>Relacional</th><th>Dimensional</th></tr>
+      <tr><td>Usado em</td><td>Bancos de Dados Relacionais (ex.: PostgreSQL)</td><td>Data Warehouse (DW) ou modelos de BI</td></tr>
+      <tr><td>Tipo de sistema</td><td>Transacional — OLTP</td><td>Analítico — OLAP</td></tr>
+      <tr><td>Tipo de modelagem</td><td>Normalizado</td><td>Desnormalizado</td></tr>
+      <tr><td>Conceito-chave</td><td>Entidade / Relacionamento</td><td>Fato e Dimensão</td></tr>
+      <tr><td>Foco</td><td>Inserir/alterar/apagar com consistência</td><td>Consultar rápido um volume grande</td></tr>
+    </table>
+
+    <h3>OLTP x OLAP</h3>
+    <table>
+      <tr><th>Sigla</th><th>Para que serve</th><th>Exemplo no Sabor Caseiro</th></tr>
+      <tr><td>OLTP</td><td>Registrar operações do dia a dia, rápido</td><td>Cada pedido sendo lançado no caixa</td></tr>
+      <tr><td>OLAP</td><td>Analisar um grande volume, para decidir</td><td>O relatório mensal consolidado</td></tr>
+    </table>
+
+    <div class="box">
+      <strong>🛠 Na prática (Python/SQL):</strong> uma consulta estilo OLTP busca 1 registro específico — <code>pedidos[pedidos["id_pedido"] == 3]</code>. Uma consulta estilo OLAP resume muitos registros — <code>pedidos.groupby("filial")["valor"].sum()</code>. O notebook desta semana pratica os dois com o mesmo arquivo <code>pedidos_sabor_caseiro.csv</code>.
+    </div>
+  </section>
+
+  <section>
+    <h2>2. PostgreSQL e pgAdmin — Instalação, Configuração e Primeira Conexão</h2>
+    <p>O PostgreSQL é um <strong>programa completo</strong>, separado do Python, que fica rodando sozinho em segundo plano (um <strong>servidor</strong>) esperando alguém se conectar. Diferente de uma biblioteca (<code>%pip install</code>), ele precisa ser instalado como um programa de verdade na sua máquina.</p>
+    <table>
+      <tr><th>Termo</th><th>O que é</th></tr>
+      <tr><td>PostgreSQL</td><td>O SGBD — o programa que guarda e organiza os dados de verdade</td></tr>
+      <tr><td>pgAdmin</td><td>Programa com tela e botões pra ver e mexer no PostgreSQL</td></tr>
+      <tr><td>psycopg2</td><td>Biblioteca Python que conecta seu código ao PostgreSQL</td></tr>
+      <tr><td>SQL</td><td>A linguagem usada para pedir e alterar dado num banco relacional</td></tr>
+    </table>
+    <div class="box">
+      <strong>⚠️ Confusão comum:</strong> o PostgreSQL vem com um usuário chamado <code>postgres</code> <strong>e</strong>, separadamente, um banco de dados que também se chama <code>postgres</code> — são 2 coisas diferentes. Você cria um banco novo, <code>sabor_caseiro</code>, para este curso.
+    </div>
+    <p>O passo a passo completo de instalação (Windows), criação do banco e da tabela <code>pedidos</code> está no notebook desta semana — inclui o comando <code>CREATE TABLE</code> que cria sua primeira tabela de verdade, populada com os 18 pedidos do CSV que você já conhece.</p>
+    <pre class="codeblock"><span class="c">-- primeira consulta, só pra confirmar que a conexão funciona</span>
+SELECT version();</pre>
+  </section>
+
+  <section>
+    <h2>3. Queries Básicas no PostgreSQL</h2>
+    <p>Toda consulta de leitura em SQL começa com <strong>SELECT</strong> (o que eu quero ver) e <strong>FROM</strong> (de onde vem).</p>
+    <table>
+      <tr><th>Comando</th><th>O que faz</th></tr>
+      <tr><td><code>SELECT * FROM tabela</code></td><td>Traz TODAS as colunas</td></tr>
+      <tr><td><code>SELECT col1, col2 FROM tabela</code></td><td>Traz só as colunas escolhidas</td></tr>
+      <tr><td><code>SELECT col AS apelido</code></td><td>Renomeia a coluna no resultado</td></tr>
+      <tr><td><code>SELECT DISTINCT col</code></td><td>Remove valores repetidos</td></tr>
+      <tr><td><code>... LIMIT N</code></td><td>Traz só as N primeiras linhas</td></tr>
+      <tr><td><code>... ORDER BY col</code></td><td>Ordena o resultado (ASC/DESC)</td></tr>
+    </table>
+    <pre class="codeblock"><span class="c">-- 5 pedidos mais recentes, só com as colunas que interessam</span>
+SELECT id_pedido, cliente AS nome_cliente, valor
+FROM pedidos
+LIMIT 5;</pre>
+  </section>
+
+  <section>
+    <h2>4. Filtros no PostgreSQL</h2>
+    <p>O comando <strong>WHERE</strong> filtra as linhas de uma consulta, mantendo só as que atendem a uma condição.</p>
+    <table>
+      <tr><th>Operador/Comando</th><th>O que faz</th></tr>
+      <tr><td><code>=, &lt;&gt;, &gt;, &lt;, &gt;=, &lt;=</code></td><td>Comparação</td></tr>
+      <tr><td><code>AND / OR / NOT</code></td><td>Combina condições</td></tr>
+      <tr><td><code>LIKE '%texto%'</code></td><td>Busca um texto dentro de outro</td></tr>
+      <tr><td><code>IN (...)</code></td><td>O valor está numa lista?</td></tr>
+      <tr><td><code>BETWEEN a AND b</code></td><td>O valor está num intervalo?</td></tr>
+      <tr><td><code>IS NULL / IS NOT NULL</code></td><td>O valor está vazio (ou não)?</td></tr>
+    </table>
+    <div class="box">
+      <strong>⚠️ O PostgreSQL é case-sensitive:</strong> <code>WHERE filial = 'centro'</code> (minúsculo) NÃO encontra as linhas gravadas como <code>'Centro'</code> (maiúsculo).
+    </div>
+    <pre class="codeblock"><span class="c">-- pedidos da filial Centro, acima de R$ 30</span>
+SELECT cliente, filial, item, valor
+FROM pedidos
+WHERE filial = 'Centro' AND valor > 30
+ORDER BY valor DESC;</pre>
+  </section>
+
+  <section>
+    <h2>5. Funções de Agregação e Agrupamentos</h2>
+    <p>Funções de agregação calculam <strong>um valor a partir de várias linhas</strong>.</p>
+    <table>
+      <tr><th>Função</th><th>O que faz</th></tr>
+      <tr><td><code>COUNT(*)</code></td><td>Conta quantas linhas existem</td></tr>
+      <tr><td><code>SUM(coluna)</code></td><td>Soma os valores da coluna</td></tr>
+      <tr><td><code>AVG(coluna)</code></td><td>Calcula a média</td></tr>
+      <tr><td><code>MAX(coluna) / MIN(coluna)</code></td><td>O maior e o menor valor</td></tr>
+    </table>
+    <p>Sozinha, uma função de agregação resume a tabela INTEIRA. Para resumir <strong>por grupo</strong> (por filial, por item...), existe o <strong>GROUP BY</strong>: ele separa as linhas em grupos antes de calcular.</p>
+    <pre class="codeblock"><span class="c">-- faturamento e quantidade de pedidos por filial</span>
+SELECT filial,
+       COUNT(*) AS qtd_pedidos,
+       SUM(valor) AS faturamento
+FROM pedidos
+GROUP BY filial
+ORDER BY faturamento DESC;</pre>
+  </section>
+
+  <div class="checagem">
+    <strong>✅ Antes de seguir para a Semana 09, confirme:</strong>
+    Você consegue explicar a diferença entre OLTP e OLAP, tem o PostgreSQL instalado com a tabela <code>pedidos</code> populada, e sabe escrever uma consulta combinando SELECT, WHERE e GROUP BY na mesma pergunta.
+  </div>
+
+  <section>
+    <h2>Quiz de Fixação</h2>
+    <p>Responda e clique em <strong>Verificar</strong> para ver o feedback de cada questão.</p>
+
+    <div class="qs" data-correct="b">
+      <p><strong>1.</strong> O que é Business Intelligence (BI)?</p>
+      <label><input type="radio" name="q1" value="a"> Um tipo de banco de dados NoSQL</label>
+      <label><input type="radio" name="q1" value="b"> O processo de transformar dado bruto em informação que ajuda alguém a decidir algo</label>
+      <label><input type="radio" name="q1" value="c"> Um sinônimo de PostgreSQL</label>
+      <label><input type="radio" name="q1" value="d"> Uma função de agregação do SQL</label>
+      <button type="button" onclick="check(this)">Verificar</button>
+      <div class="feedback"></div>
+    </div>
+
+    <div class="qs" data-correct="b">
+      <p><strong>2.</strong> Um sistema OLTP é mais indicado para:</p>
+      <label><input type="radio" name="q2" value="a"> Gerar relatórios mensais consolidados</label>
+      <label><input type="radio" name="q2" value="b"> Registrar operações do dia a dia, uma de cada vez, rápido</label>
+      <label><input type="radio" name="q2" value="c"> Guardar arquivos de imagem</label>
+      <label><input type="radio" name="q2" value="d"> Substituir o pgAdmin</label>
+      <button type="button" onclick="check(this)">Verificar</button>
+      <div class="feedback"></div>
+    </div>
+
+    <div class="qs" data-correct="c">
+      <p><strong>3.</strong> Qual comando renomeia uma coluna só no resultado da consulta, sem mudar o banco?</p>
+      <label><input type="radio" name="q3" value="a"> WHERE</label>
+      <label><input type="radio" name="q3" value="b"> GROUP BY</label>
+      <label><input type="radio" name="q3" value="c"> AS</label>
+      <label><input type="radio" name="q3" value="d"> LIMIT</label>
+      <button type="button" onclick="check(this)">Verificar</button>
+      <div class="feedback"></div>
+    </div>
+
+    <div class="qs" data-correct="b">
+      <p><strong>4.</strong> Por que <code>WHERE filial = 'centro'</code> pode não encontrar nenhuma linha, mesmo existindo pedidos da filial Centro?</p>
+      <label><input type="radio" name="q4" value="a"> Porque WHERE não aceita texto</label>
+      <label><input type="radio" name="q4" value="b"> Porque o PostgreSQL é case-sensitive, e o valor está gravado como 'Centro'</label>
+      <label><input type="radio" name="q4" value="c"> Porque falta um GROUP BY</label>
+      <label><input type="radio" name="q4" value="d"> Porque a tabela não tem a coluna filial</label>
+      <button type="button" onclick="check(this)">Verificar</button>
+      <div class="feedback"></div>
+    </div>
+
+    <div class="qs" data-correct="a">
+      <p><strong>5.</strong> Qual a diferença entre COUNT(*) sozinho e COUNT(*) com GROUP BY?</p>
+      <label><input type="radio" name="q5" value="a"> Sozinho, resume a tabela inteira numa linha; com GROUP BY, conta separadamente por grupo</label>
+      <label><input type="radio" name="q5" value="b"> Não existe diferença nenhuma</label>
+      <label><input type="radio" name="q5" value="c"> GROUP BY só funciona com SUM, nunca com COUNT</label>
+      <label><input type="radio" name="q5" value="d"> COUNT(*) sozinho só funciona em bancos NoSQL</label>
+      <button type="button" onclick="check(this)">Verificar</button>
+      <div class="feedback"></div>
+    </div>
+
+    <div class="qs" data-correct="c">
+      <p><strong>6.</strong> Qual operador encontra valores dentro de um intervalo, incluindo as pontas?</p>
+      <label><input type="radio" name="q6" value="a"> LIKE</label>
+      <label><input type="radio" name="q6" value="b"> IN</label>
+      <label><input type="radio" name="q6" value="c"> BETWEEN</label>
+      <label><input type="radio" name="q6" value="d"> IS NULL</label>
+      <button type="button" onclick="check(this)">Verificar</button>
+      <div class="feedback"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Exercícios da Semana</h2>
+    <div class="ex">
+      <strong>Fácil:</strong> Liste 3 diferenças entre um sistema OLTP e um sistema OLAP.
+    </div>
+    <div class="ex">
+      <strong>Médio:</strong> Escreva a consulta SQL que traz os pedidos da filial Zona Sul com valor entre 10 e 40, ordenados do maior para o menor.
+    </div>
+    <div class="ex">
+      <strong>Avançado:</strong> Instale o PostgreSQL e o pgAdmin, crie o banco <code>sabor_caseiro</code> e a tabela <code>pedidos</code>, e rode uma consulta com GROUP BY até ver o resultado agrupado por filial.
+    </div>
+    <p>Lista completa (formativa, sem nota) em <code>04_exercicios.md</code>.</p>
+  </section>
+
+  <div class="fechamento">
+    <h3>🏁 Fechamento — Semana 08</h3>
+    <p><strong>Nesta semana você aprendeu:</strong></p>
+    <ul>
+      <li>Os fundamentos de BI, modelagem relacional x dimensional, e OLTP x OLAP</li>
+      <li>Instalar o PostgreSQL/pgAdmin e criar sua primeira tabela de verdade</li>
+      <li>SELECT, FROM, AS, DISTINCT, LIMIT e ORDER BY</li>
+      <li>WHERE, AND/OR, LIKE, IN, BETWEEN e IS NULL</li>
+      <li>COUNT, SUM, AVG, MAX, MIN e GROUP BY</li>
+    </ul>
+    <p><strong>Próxima semana:</strong> a Semana 09 une tabelas diferentes com JOIN e salva consultas prontas com VIEW.</p>
+  </div>
+
+</main>
+
+<footer>
+  Curso: Análise de Dados com Python — SENAI (Turma T5) · Semana 08<br>
+  <strong>Professor: Cláudio Ferreira Neves - Especialista em Dados</strong>
+</footer>
+
+<script>
+function check(btn){
+  const qs = btn.closest('.qs');
+  const correct = qs.getAttribute('data-correct');
+  const name = qs.querySelector('input').name;
+  const selected = qs.querySelector('input[name="' + name + '"]:checked');
+  const fb = qs.querySelector('.feedback');
+
+  if(!selected){
+    fb.className = 'feedback wrong';
+    fb.textContent = '⚠️ Selecione uma alternativa antes de verificar.';
+    return;
+  }
+
+  if(selected.value === correct){
+    fb.className = 'feedback correct';
+    fb.textContent = '✅ Correto! Muito bem.';
+  } else {
+    const correctLabel = qs.querySelector('input[value="' + correct + '"]').closest('label').textContent.trim();
+    fb.className = 'feedback wrong';
+    fb.textContent = '❌ Incorreto. A resposta certa é: ' + correctLabel;
+  }
+}
+</script>
+
+</body>
+</html>
